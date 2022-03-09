@@ -7,7 +7,7 @@ const MATCH_COMMIT = /(.*)\n(.*)\n(.*)\n(.*)\n([\S\s]+)/
 const MATCH_STATS = /(\d+) files? changed(?:, (\d+) insertions?...)?(?:, (\d+) deletions?...)?/
 const BODY_FORMAT = '%B'
 const FALLBACK_BODY_FORMAT = '%s%n%n%b'
-
+const execSync = require('child_process').execSync;
 // https://help.github.com/articles/closing-issues-via-commit-messages
 const DEFAULT_FIX_PATTERN = /(?:close[sd]?|fixe?[sd]?|resolve[sd]?)\s(?:#(\d+)|(https?:\/\/.+?\/(?:issues|pull|pull-requests|merge_requests)\/(\d+)))/gi
 
@@ -21,7 +21,7 @@ const MERGE_PATTERNS = [
 const fetchCommits = async (diff, options = {}) => {
   const format = await getLogFormat()
   const log = await cmd(`git log ${diff} --shortstat --pretty=format:${format} ${options.appendGitLog}`)
-  return parseCommits(log, options)
+  return await parseCommits(log, options)
 }
 
 const getLogFormat = async () => {
@@ -39,26 +39,32 @@ const parseCommits = (string, options = {}) => {
 }
 
 const parseCommit = (commit, options = {}) => {
+  // console.log("Starting");
   const [, hash, date, author, email, tail] = commit.match(MATCH_COMMIT)
   const [body, stats] = tail.split(MESSAGE_SEPARATOR)
   const message = encodeHTML(body)
-  const parsed = {
+  var parsed = {
     hash,
     shorthash: hash.slice(0, 7),
     author,
     email,
     date: new Date(date).toISOString(),
     niceDate: niceDate(date),
-    subject: replaceText(getSubject(message), options),
+    subject: replaceText(getSubject(message), options) + " - " + author,
     message: message.trim(),
     fixes: getFixes(message, author, options),
     href: options.getCommitLink(hash),
     breaking: !!options.breakingPattern && new RegExp(options.breakingPattern).test(message),
     ...getStats(stats)
   }
+  const mergeInfo = getMerge(parsed, message, options)
+  if (mergeInfo !== null) {
+    const title = JSON.parse(execSync(`gh pr view ${mergeInfo.id} --json title`));
+    mergeInfo.message = title.title + " - " + author;
+  }
   return {
     ...parsed,
-    merge: getMerge(parsed, message, options)
+    merge: mergeInfo
   }
 }
 
