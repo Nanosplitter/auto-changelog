@@ -141,10 +141,11 @@ const getMerge = (commit, message, options = {}) => {
   return null
 }
 
-const filterCommit = (commit, { ignoreCommitPattern }) => {
-  if (ignoreCommitPattern && new RegExp(ignoreCommitPattern).test(commit.subject)) {
+const filterCommit = (commit, { startingDate, ignoreCommitPattern }) => {
+  if ((ignoreCommitPattern && new RegExp(ignoreCommitPattern).test(commit.subject)) || new Date(commit.date) < new Date(startingDate)) {
     return false
   }
+
   return true
 }
 
