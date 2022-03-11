@@ -14,7 +14,7 @@ npm install -g auto-changelog
 
 ### Usage
 
-Simply run `auto-changelog` in the root folder of a git repository. `git log` is run behind the scenes in order to parse the commit history.
+Simply run `auto-changelog-2` in the root folder of a git repository. `git log` is run behind the scenes in order to parse the commit history.
 
 ```bash
 Usage: auto-changelog [options]
@@ -69,7 +69,7 @@ auto-changelog --commit-limit false
 
 ### Requirements
 
-`auto-changelog` is designed to be as flexible as possible, providing a clear changelog for any project. There are only two absolute requirements:
+`auto-changelog-2` is designed to be as flexible as possible, providing a clear changelog for any project. There are only two absolute requirements:
 
 - You should be using git `1.7.2` or later
 - All versions should be tagged using [semver](https://semver.org) tag names – this happens by default when using [`npm version`](https://docs.npmjs.com/cli/version)
@@ -81,7 +81,7 @@ There are some less strict requirements to improve your changelog:
 
 ### What you might do if you’re clever
 
-Install `auto-changelog` to dev dependencies:
+Install `auto-changelog-2` to dev dependencies:
 
 ```bash
 npm install auto-changelog --save-dev
@@ -99,7 +99,7 @@ Add `auto-changelog -p && git add CHANGELOG.md` to the `version` scripts in your
     "auto-changelog": "*"
   },
   "scripts": {
-    "version": "auto-changelog -p && git add CHANGELOG.md"
+    "version": "auto-changelog-2 -p && git add CHANGELOG.md"
   }
 }
 ```
